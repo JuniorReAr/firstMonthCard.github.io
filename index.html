@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primer Mes Contigo, Cielo</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #87CEEB;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        .card-container {
+            position: relative;
+            width: 650px;
+            height: 500px;
+            cursor: pointer;
+            perspective: 1000px;
+        }
+        .card {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transform: rotateX(0deg);
+            transition: transform 0.8s ease-in-out;
+        }
+        .card.open {
+            transform: rotateX(180deg);
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ffbf00;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .card-content {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            transform: rotateX(180deg);
+            backface-visibility: hidden;
+        }
+        h1 {
+            color: #ffbf00;
+            font-size: 26px;
+        }
+        p {
+            color: #444;
+            font-size: 18px;
+            line-height: 1.8;
+            max-width: 90%;
+            margin: 10px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        
+        /* Ajustes para móviles */
+        @media (max-width: 768px) {
+            .card-container {
+                width: 90%;
+                height: auto;
+            }
+            .card-face, .card-content {
+                font-size: 20px;
+                padding: 20px;
+            }
+            h1 {
+                font-size: 22px;
+            }
+            p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="fondo"></canvas>
+    <div class="card-container" onclick="openCard()">
+        <div class="card" id="card">
+            <div class="card-face">💌 Toca para abrir</div>
+            <div class="card-content">
+                <h1>Primer Mes Juntos 🌼</h1>
+                <p>Mi querida Cielo,</p>
+                <p>Hoy cumplimos nuestro primer mes juntos y quiero que sepas que no todo será perfecto, 
+                    habrá días difíciles y momentos en los que quizás no estemos de acuerdo. Pero lo importante es que estamos juntos en esto, y cada obstáculo será una oportunidad 
+                    para fortalecernos. Quiero aprender contigo, crecer a tu lado y construir una historia real, 
+                    con altibajos, pero siempre con amor y compromiso.Gracias por estar aquí, por ser tú y por permitirme compartir este camino contigo. ❤️</p>
+                <p class="footer">Con cariño, <br> Lwiggie</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        let clicks = 0;
+        function openCard() {
+            clicks++;
+            if (clicks === 3) {
+                document.getElementById("card").classList.add("open");
+            }
+        }
+
+        const canvas = document.getElementById("fondo");
+        const ctx = canvas.getContext("2d");
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        class Margarita {
+            constructor(x, y, size, speed) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.speed = speed;
+                this.angle = Math.random() * Math.PI * 2;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                
+                for (let i = 0; i < 10; i++) {
+                    ctx.beginPath();
+                    ctx.ellipse(0, this.size / 2, this.size / 3, this.size, Math.PI / 5 * i, 0, Math.PI * 2);
+                    ctx.fillStyle = "white";
+                    ctx.fill();
+                }
+                
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size / 3, 0, Math.PI * 2);
+                ctx.fillStyle = "yellow";
+                ctx.fill();
+                
+                ctx.restore();
+            }
+            
+            update() {
+                this.y += this.speed;
+                if (this.y > canvas.height) {
+                    this.y = -this.size;
+                    this.x = Math.random() * canvas.width;
+                }
+                this.draw();
+            }
+        }
+        
+        let margaritas = [];
+        
+        function generarMargaritas() {
+            margaritas = [];
+            for (let i = 0; i < 50; i++) {
+                let x = Math.random() * canvas.width;
+                let y = Math.random() * canvas.height;
+                let size = Math.random() * 20 + 10;
+                let speed = Math.random() * 2 + 1;
+                margaritas.push(new Margarita(x, y, size, speed));
+            }
+        }
+        
+        function animar() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            margaritas.forEach(margarita => margarita.update());
+            requestAnimationFrame(animar);
+        }
+        
+        window.addEventListener("resize", () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            generarMargaritas();
+        });
+        
+        generarMargaritas();
+        animar();
+    </script>
+</body>
+</html>
